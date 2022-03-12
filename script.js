@@ -65,6 +65,21 @@ class App {
 		this._getPosition();
 		form.addEventListener("submit", this._newWorkout.bind(this));
 		inputType.addEventListener("change", this._toggleElevationField);
+		containerWorkouts.addEventListener("click", this._moveToWorkout.bind(this));
+	}
+
+	_moveToWorkout(e) {
+		const workoutElement = e.target.closest(".workout");
+		if (!workoutElement) {
+			return;
+		}
+		const selectedWorkout = this.#workouts.find(
+			(workout) => workout.id === workoutElement.dataset.id
+		);
+		this.#map.setView(selectedWorkout.coords, 13, {
+			animate: true,
+			pan: { duration: 1 },
+		});
 	}
 
 	_getPosition() {
@@ -147,7 +162,9 @@ class App {
 			<div class="workout__details">
 			  <span class="workout__icon">⚡️</span>
 			  <span class="workout__value">${
-					workout.type === "running" ? workout.pace : workout.speed
+					workout.type === "running"
+						? workout.pace.toFixed(1)
+						: workout.speed.toFixed(1)
 				}</span>
 			  <span class="workout__unit">${workout.type === "running" ? "min/km" : "km/hr"}
 			  </span>

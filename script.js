@@ -60,12 +60,14 @@ class App {
 	#map;
 	#mapEvent;
 	#workouts = [];
+	#markers = [];
 
 	constructor() {
 		this._getPosition();
 		form.addEventListener("submit", this._newWorkout.bind(this));
 		inputType.addEventListener("change", this._toggleElevationField);
 		containerWorkouts.addEventListener("click", this._moveToWorkout.bind(this));
+		containerWorkouts.addEventListener("click", this._deleteWorkout.bind(this));
 	}
 
 	_moveToWorkout(e) {
@@ -109,6 +111,32 @@ class App {
 		this._getLocalStorage();
 	}
 
+	_deleteWorkout(e) {
+		if (!e.target.classList.contains("delete")) {
+			return;
+		}
+		const workoutEl = e.target.closest(".workout");
+
+		const workoutID = workoutEl.dataset.id;
+		this._removeWorkoutData(workoutEl);
+
+		const selectedWorkoutIndex = this.#workouts.findIndex(
+			(workout) => workout.id === workoutID
+		);
+		this._removeMarker(selectedWorkoutIndex);
+		this._setLocalStorage();
+	}
+
+	_removeWorkoutData(workoutElement) {
+		workoutElement.remove();
+	}
+
+	_removeMarker(index) {
+		this.#markers[index].remove();
+		this.#markers.splice(index);
+		this.#workouts.splice(index);
+	}
+
 	_showForm(e) {
 		this.#mapEvent = e;
 		form.classList.remove("hidden");
@@ -121,12 +149,9 @@ class App {
 		inputCadence.closest(".form__row").classList.toggle("form__row--hidden");
 	}
 
-	_removeWorkout(workoutElement) {
-		workoutElement.remove();
-	}
-
 	_showMarker(workout) {
-		L.marker(workout.coords)
+		const marker = L.marker(workout.coords);
+		marker
 			.addTo(this.#map)
 			.bindPopup(
 				L.popup({
@@ -139,6 +164,7 @@ class App {
 			)
 			.setPopupContent(workout.description)
 			.openPopup();
+		this.#markers.push(marker);
 	}
 
 	_clearInputs() {

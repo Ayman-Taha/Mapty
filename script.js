@@ -100,6 +100,7 @@ class App {
 				'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
 		}).addTo(this.#map);
 		this.#map.on("click", this._showForm.bind(this));
+		this._getLocalStorage();
 	}
 
 	_showForm(e) {
@@ -143,6 +144,28 @@ class App {
 		form.style.display = "none";
 		form.classList.add("hidden");
 		setTimeout(() => (form.style.display = "grid"), 100);
+	}
+
+	_setLocalStorage() {
+		localStorage.setItem("workouts", JSON.stringify(this.#workouts));
+	}
+
+	_getLocalStorage() {
+		const localStoredWorkouts = JSON.parse(localStorage.getItem("workouts"));
+		if (!localStoredWorkouts) {
+			return;
+		}
+		this.#workouts = localStoredWorkouts;
+		this.#workouts.forEach((workout) => {
+			this._displayWorkout(workout);
+			this._showMarker(workout);
+		});
+	}
+
+	//call this ONLY if you wanna clear workouts from local storage
+	_clearLocalStorage() {
+		localStorage.removeItem("workouts");
+		location.reload();
 	}
 
 	_displayWorkout(workout) {
@@ -228,6 +251,8 @@ class App {
 		this._hideForm();
 
 		this._displayWorkout(workout);
+
+		this._setLocalStorage();
 	}
 }
 

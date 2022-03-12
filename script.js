@@ -80,6 +80,12 @@ class App {
 			animate: true,
 			pan: { duration: 1 },
 		});
+		document
+			.querySelectorAll(".workout__btns")
+			.forEach((el) => el.classList.add("form__btns--hidden"));
+		workoutElement
+			.querySelector(".workout__btns")
+			.classList.remove("form__btns--hidden");
 	}
 
 	_getPosition() {
@@ -113,6 +119,10 @@ class App {
 	_toggleElevationField() {
 		inputElevation.closest(".form__row").classList.toggle("form__row--hidden");
 		inputCadence.closest(".form__row").classList.toggle("form__row--hidden");
+	}
+
+	_removeWorkout(workoutElement) {
+		workoutElement.remove();
 	}
 
 	_showMarker(workout) {
@@ -199,6 +209,10 @@ class App {
 				}
 			  </span>
 			  <span class="workout__unit">${workout.type === "running" ? "spm" : "m"}</span>
+			</div>
+			<div class="workout__btns form__btns--hidden">
+			  <button class="workout__btn edit">Edit</button>
+			  <button class="workout__btn delete">Delete</button>
 			</div>
 	 	 </li>
 		`;

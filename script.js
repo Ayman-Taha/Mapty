@@ -136,8 +136,8 @@ class App {
 
 	_removeMarker(index) {
 		this.#markers[index].remove();
-		this.#markers.splice(index);
-		this.#workouts.splice(index);
+		this.#markers.splice(index, 1);
+		this.#workouts.splice(index, 1);
 	}
 
 	_editWorkout(e) {
@@ -166,6 +166,10 @@ class App {
 	}
 
 	_showForm(e) {
+		document
+			.querySelectorAll(".workout__btns")
+			.forEach((el) => el.classList.add("form__btns--hidden"));
+		this.currentWorkout = undefined;
 		this.#mapEvent = e;
 		form.classList.remove("hidden");
 		this._clearInputs();

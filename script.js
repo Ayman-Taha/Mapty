@@ -61,6 +61,7 @@ class App {
 	#mapEvent;
 	#workouts = [];
 	#markers = [];
+	currentWorkout;
 
 	constructor() {
 		this._getPosition();
@@ -68,6 +69,7 @@ class App {
 		inputType.addEventListener("change", this._toggleElevationField);
 		containerWorkouts.addEventListener("click", this._moveToWorkout.bind(this));
 		containerWorkouts.addEventListener("click", this._deleteWorkout.bind(this));
+		containerWorkouts.addEventListener("click", this._editWorkout.bind(this));
 	}
 
 	_moveToWorkout(e) {
@@ -78,6 +80,7 @@ class App {
 		const selectedWorkout = this.#workouts.find(
 			(workout) => workout.id === workoutElement.dataset.id
 		);
+		this.currentWorkout = selectedWorkout;
 		this.#map.setView(selectedWorkout.coords, 13, {
 			animate: true,
 			pan: { duration: 1 },
@@ -135,6 +138,31 @@ class App {
 		this.#markers[index].remove();
 		this.#markers.splice(index);
 		this.#workouts.splice(index);
+	}
+
+	_editWorkout(e) {
+		if (!e.target.classList.contains("edit")) {
+			return;
+		}
+
+		let selectedWorkout = this.currentWorkout;
+		//open form
+		form.classList.remove("hidden");
+		//repopulate old data
+		inputType.value = selectedWorkout.type;
+		inputDistance.value = selectedWorkout.distance;
+		inputDuration.value = selectedWorkout.duration;
+		if (selectedWorkout.type === "running") {
+			inputElevation.closest(".form__row").classList.add("form__row--hidden");
+			inputCadence.closest(".form__row").classList.remove("form__row--hidden");
+			inputCadence.value = selectedWorkout.cadence;
+		} else {
+			inputElevation
+				.closest(".form__row")
+				.classList.remove("form__row--hidden");
+			inputCadence.closest(".form__row").classList.add("form__row--hidden");
+			inputElevation.value = selectedWorkout.elevation;
+		}
 	}
 
 	_showForm(e) {
@@ -247,17 +275,33 @@ class App {
 	}
 
 	_newWorkout(e) {
+		e.preventDefault();
+		let lat, lng;
+		if (this.currentWorkout) {
+			const workoutEl = document
+				.querySelector(`[data-id = "${this.currentWorkout.id}"]`)
+				.closest(".workout");
+			const selectedWorkoutIndex = this.#workouts.findIndex(
+				(workout) => workout.id === this.currentWorkout.id
+			);
+
+			this._removeWorkoutData(workoutEl);
+			this._removeMarker(selectedWorkoutIndex);
+			this._setLocalStorage();
+			[lat, lng] = this.currentWorkout.coords;
+			this.currentWorkout = undefined;
+		} else {
+			({ lat, lng } = this.#mapEvent.latlng);
+		}
+
 		const isValidInputs = (...inputs) =>
 			inputs.every((input) => Number.isFinite(input));
 
 		const isPositiveInputs = (...inputs) => inputs.every((input) => input > 0);
 
-		e.preventDefault();
-
 		const type = inputType.value;
 		const distance = Number(inputDistance.value);
 		const duration = Number(inputDuration.value);
-		const { lat, lng } = this.#mapEvent.latlng;
 		let workout;
 
 		if (type === "running") {
@@ -278,7 +322,9 @@ class App {
 				!isValidInputs(distance, duration, elevation) ||
 				!isPositiveInputs(distance, duration)
 			) {
-				return alert("All inputs, except elevation, must be positive numbers!");
+				return alert(
+					"All inputs, except elevation gain, must be positive numbers!"
+				);
 			}
 
 			workout = new Cycling([lat, lng], distance, duration, elevation);

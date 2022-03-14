@@ -114,6 +114,19 @@ a:visited {
 	margin: 4px 8px;
 }
 
+.deleteAll__btn {
+	width: 50%;
+	border: none;
+	border-radius: 20px;
+	color: white;
+	padding: 18px;
+	text-align: center;
+	text-decoration: none;
+	font-size: 20px;
+	margin: 0 25%;
+	background-color: #d30c0c;
+}
+
 .edit {
 	background-color: #354cb3;
 }
@@ -193,10 +206,6 @@ a:visited {
 .form__input:focus {
 	outline: none;
 	background-color: #fff;
-}
-
-.form__btn {
-	display: none;
 }
 
 .copyright {

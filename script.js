@@ -7,6 +7,7 @@ const inputDistance = document.querySelector(".form__input--distance");
 const inputDuration = document.querySelector(".form__input--duration");
 const inputCadence = document.querySelector(".form__input--cadence");
 const inputElevation = document.querySelector(".form__input--elevation");
+const deleteAllBtn = document.querySelector(".deleteAll__btn");
 
 class Workout {
 	//class fields
@@ -70,6 +71,7 @@ class App {
 		containerWorkouts.addEventListener("click", this._moveToWorkout.bind(this));
 		containerWorkouts.addEventListener("click", this._deleteWorkout.bind(this));
 		containerWorkouts.addEventListener("click", this._editWorkout.bind(this));
+		deleteAllBtn.addEventListener("click", this._deleteAllWorkouts.bind(this));
 	}
 
 	_moveToWorkout(e) {
@@ -163,6 +165,13 @@ class App {
 			inputCadence.closest(".form__row").classList.add("form__row--hidden");
 			inputElevation.value = selectedWorkout.elevation;
 		}
+	}
+
+	_deleteAllWorkouts() {
+		localStorage.removeItem("workouts");
+		location.reload();
+		this.#workouts = [];
+		this.#markers = [];
 	}
 
 	_showForm(e) {
